@@ -57,12 +57,20 @@ public class FileManager {
 		// implement
 		
 		// set a loop where size = numReplicas
-		
+		for(int i = 0; i < numReplicas; i++) {
+			try {
+				replicafiles[i] = Hash.hashOf(filename+i);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		// replicate by adding the index to filename
 		
 		// hash the replica
 		
 		// store the hash in the replicafiles array.
+		
 
 	}
 	
@@ -90,7 +98,13 @@ public class FileManager {
     	
     	// increment counter
     	
-    		
+    	createReplicaFiles();
+    	for(BigInteger b : replicafiles) {
+    		NodeInterface node = chordnode.findSuccessor(b);
+    		node.addKey(b);
+    		node.saveFileContent(filename, b, bytesOfFile, true);
+    		counter++;
+    	}
 		return counter;
     }
 	
@@ -116,6 +130,13 @@ public class FileManager {
 		
 		// save the metadata in the set succinfo.
 		
+		createReplicaFiles();
+		for(BigInteger b : replicafiles) {
+			NodeInterface n = chordnode.findSuccessor(b);
+			
+			succinfo.add(n.getFilesMetadata(b));
+		}
+		
 		this.activeNodesforFile = succinfo;
 		
 		return succinfo;
@@ -136,6 +157,16 @@ public class FileManager {
 		// use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
 		
 		// return the primary
+		
+		try {
+			for(Message message : requestActiveNodesForFile(filename)) {
+				if(message.isPrimaryServer()) {
+					return Util.getProcessStub(message.getNameOfFile(), message.getPort());
+				}
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 		
 		return null; 
 	}

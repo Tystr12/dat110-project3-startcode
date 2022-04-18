@@ -1,22 +1,17 @@
 package no.hvl.dat110.util;
 
-/**
- * project 3
- * @author tdoy
- *
- */
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 
 public class Hash { 
 	
 	private static BigInteger hashint; 
 	
-	public static BigInteger hashOf(String entity) {		
+	public static BigInteger hashOf(String entity) throws NoSuchAlgorithmException {		
 		
 		// Task: Hash a given string using MD5 and return the result as a BigInteger.
 		
@@ -30,7 +25,13 @@ public class Hash {
 		
 		// return the BigInteger
 		
+	 
+        MessageDigest m=MessageDigest.getInstance("MD5");
+        m.update(entity.getBytes(),0,entity.length());
+        hashint = new BigInteger(1,m.digest());
+        
 		return hashint;
+		
 	}
 	
 	public static BigInteger addressSize() {
@@ -45,7 +46,11 @@ public class Hash {
 		
 		// return the address size
 		
-		return null;
+		
+		
+		BigInteger b = new BigInteger("2");
+
+		return b.pow(bitSize());
 	}
 	
 	public static int bitSize() {
@@ -53,6 +58,13 @@ public class Hash {
 		int digestlen = 0;
 		
 		// find the digest length
+		
+		try {
+			digestlen = MessageDigest.getInstance("MD5").digest().length;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		return digestlen*8;
 	}
